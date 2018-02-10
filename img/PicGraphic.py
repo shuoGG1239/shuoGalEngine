@@ -1,14 +1,25 @@
 from PyQt5.QtCore import QObject, QSize, Qt, pyqtSignal
 from PyQt5.QtWidgets import QGraphicsPixmapItem
-from animeEffect.AnimationGraphic import AnimationGraphic
-from PyQt5.QtGui import QPixmap
+
+from anime.AnimationGraphic import AnimationGraphic
 
 
 class PicGraphic(QObject, QGraphicsPixmapItem):
     sizePixmapOrig = QSize()
-    leftclick = pyqtSignal()
-    rightclick = pyqtSignal()
+    leftClick = pyqtSignal()
+    rightClick = pyqtSignal()
+    animeEffect = None
+
     def __init__(self, pic, x, y, animeGeomOn, animeOpacOn, parent):
+        """
+        初始化
+        :param pic: QPixmap
+        :param x:
+        :param y:
+        :param animeGeomOn: bool
+        :param animeOpacOn: bool
+        :param parent:
+        """
         QGraphicsPixmapItem.__init__(pic, parent)
         # 改变几何中心, 默认在重心
         self.sizePixmapOrig.setWidth(pic.width())
@@ -18,15 +29,21 @@ class PicGraphic(QObject, QGraphicsPixmapItem):
         self.setOpacity(1)
         self.setScale(1)
         self.show()
-        self.setAnimeAll_OnOff(animeGeomOn, animeOpacOn)
+        self.enableAnime(animeGeomOn, animeOpacOn)
 
-    def setAnimeAll_OnOff(self, animeGeomOn, animeOpacOn):
+    def enableAnime(self, animeGeomOn, animeOpacOn):
+        """
+        动画效果使能
+        :param animeGeomOn: bool
+        :param animeOpacOn: bool
+        :return:
+        """
         if animeGeomOn and animeOpacOn:
-            animeEffect = AnimationGraphic(self, self, True, True, True, True)
+            self.animeEffect = AnimationGraphic(self, self, True, True, True, True)
         elif animeGeomOn and not animeOpacOn:
-            animeEffect = AnimationGraphic(self, self, True, True, True, False)
+            self.animeEffect = AnimationGraphic(self, self, True, True, True, False)
         elif not animeGeomOn and animeOpacOn:
-            animeEffect = AnimationGraphic(self, self, False, False, False, True)
+            self.animeEffect = AnimationGraphic(self, self, False, False, False, True)
 
     def setGeomCenter(self, x_percent, y_percent):
         """
@@ -41,9 +58,9 @@ class PicGraphic(QObject, QGraphicsPixmapItem):
     def getScaledPixmap(self, inputPic, scale):
         """
         缩放
-        :param inputPic:
-        :param scale:
-        :return:
+        :param inputPic: QPixmap
+        :param scale: float 缩放倍数
+        :return: QPixmap
         """
         rePic = inputPic.scaled(inputPic.width() * scale, inputPic.height() * scale)
         return rePic
@@ -51,7 +68,7 @@ class PicGraphic(QObject, QGraphicsPixmapItem):
     def mouseReleaseEvent(self, e):
         # 响应左击事件
         if (e.button() & Qt.LeftButton) == 1:
-            self.leftclick.emit()
+            self.leftClick.emit()
         # 响应右击事件
         elif (e.button() & Qt.RightButton) == 1:
-            self.rightclick.emit()
+            self.rightClick.emit()
